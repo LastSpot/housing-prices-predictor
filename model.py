@@ -327,6 +327,15 @@ class MLPNeuralNetwork:
         hidden_sizes, neurons_per_layer = params['hidden_sizes'], params['neurons_per_layer']
         
         best_mae, best_params = float('inf'), {}
+        
+        # Early stopping threshold - if MAE is worse than this after early_stopping_folds,
+        # we'll skip the rest of the folds for this parameter set
+        early_stopping_threshold = params.get('early_stopping_threshold', 80000)
+        early_stopping_folds = params.get('early_stopping_folds', 5)  # Check after this many folds
+        
+        # Show early stopping settings if provided
+        if 'early_stopping_threshold' in params:
+            print(f"Early stopping enabled: Will skip parameter sets with MAE > {early_stopping_threshold} after {early_stopping_folds} folds")
 
         # Grid search through all parameter combinations
         for alpha in alphas:
@@ -363,6 +372,8 @@ class MLPNeuralNetwork:
                             # Cross-validation
                             try:
                                 fold_num = 0
+                                skip_current_param_set = False
+                                
                                 for train_index, test_index in k_fold_index:
                                     fold_num += 1
                                     print(f"Processing fold {fold_num}...")
@@ -382,27 +393,47 @@ class MLPNeuralNetwork:
                                             
                                         print(f"MAE for fold {fold_num}: {mae}")
                                         mean_abs_errors.append(mae)
+                                        
+                                        # Early stopping check - if we have enough folds to evaluate
+                                        if fold_num >= early_stopping_folds:
+                                            current_mean_mae = sum(mean_abs_errors) / len(mean_abs_errors)
+                                            # If current mean MAE is much worse than best so far or threshold, skip further folds
+                                            if (best_mae < float('inf') and current_mean_mae > best_mae * 1.5) or \
+                                               (current_mean_mae > early_stopping_threshold):
+                                                print(f"Early stopping: Current MAE ({current_mean_mae:.4f}) is significantly worse than best ({best_mae:.4f})")
+                                                print("Skipping remaining folds for this parameter set.")
+                                                skip_current_param_set = True
+                                                break
                                     except Exception as e:
                                         print(f"Error in fold {fold_num}: {e}. Skipping this fold.")
+                                        print()
                                         continue
+                                    
+                                    if skip_current_param_set:
+                                        break
                                 
                                 # Calculate mean MAE if we have results
                                 if mean_abs_errors:
                                     mean_mae = sum(mean_abs_errors) / len(mean_abs_errors)
-                                    print(f"Mean MAE: {mean_mae}")
-                                    print()
                                     
-                                    # Update best parameters if this is better
-                                    if mean_mae < best_mae:
-                                        best_mae = mean_mae
-                                        best_params = {
-                                            'alpha': alpha,
-                                            'lambda': lamb,
-                                            'epsilon': epsilon,
-                                            'layer': layer,
-                                            'npl': npl,
-                                            'mean_mae': mean_mae  # Save the performance metric
-                                        }
+                                    # Only consider complete runs or runs with enough folds for early stopping
+                                    if not skip_current_param_set or len(mean_abs_errors) >= early_stopping_folds:
+                                        print(f"Mean MAE: {mean_mae}")
+                                        print()
+                                        
+                                        # Update best parameters if this is better
+                                        if mean_mae < best_mae:
+                                            best_mae = mean_mae
+                                            best_params = {
+                                                'alpha': alpha,
+                                                'lambda': lamb,
+                                                'epsilon': epsilon,
+                                                'layer': layer,
+                                                'npl': npl,
+                                                'mean_mae': mean_mae,  # Save the performance metric
+                                                'folds_completed': len(mean_abs_errors)  # Track how many folds were actually used
+                                            }
+                                            print(f"New best parameters found with MAE: {best_mae:.4f}")
                                 else:
                                     print("No valid results for this parameter set.")
                                     print()
@@ -415,7 +446,8 @@ class MLPNeuralNetwork:
         if best_params:
             self.best_params = best_params
             print("Best parameters found:")
-            print(self.best_params)
+            for key, value in self.best_params.items():
+                print(f"  {key}: {value}")
             # Save parameters to file
             self.save_parameters("best_params.pkl")
         else:
@@ -562,7 +594,7 @@ class MLPNeuralNetwork:
         self.gradient = self.generate_gradient()
         
         # Train with best parameters
-        cost = self.train(features, labels, alpha, epsilon, lamb, max_epochs=2000, batch_size=64)
+        cost = self.train(features, labels, alpha, epsilon, lamb, max_epochs=5000, batch_size=64)
         print(f"Final training cost: {cost}")
         return cost
         

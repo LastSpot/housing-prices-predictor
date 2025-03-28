@@ -25,6 +25,7 @@ Ever wondered how much your dream house should cost? Let's predict it! This proj
 - Stops when it's good enough (early stopping)
 - Keeps itself in check (L2 regularization)
 - Remembers what worked best (parameter persistence)
+- Smart enough to skip bad parameter combinations (saves hours!)
 
 ### 🎮 The Knobs I Turn
 - Learning speed (alpha)
@@ -92,6 +93,29 @@ MLPNeuralNetwork.check_saved_parameters()
 model.get_info()
 model.summarize_parameters()
 ```
+
+## ⚡ Smart Grid Search
+
+Speed up your grid search with early stopping criteria:
+
+```python
+# Define your parameter grid
+params = {
+    'alphas': [0.001, 0.01, 0.1],
+    'lambdas': [0, 0.01, 0.1],
+    'epsilons': [1e-8, 1e-6],
+    'hidden_sizes': [1, 2, 3],
+    'neurons_per_layer': [10, 20, 30],
+    # Early stopping parameters
+    'early_stopping_threshold': 20000,  # Skip combinations with MAE > 20000
+    'early_stopping_folds': 2           # After testing 2 folds
+}
+
+# Run grid search with early stopping
+model.grid_search(X_train, y_train, params, kf)
+```
+
+This lets you skip poor parameter combinations after just a few folds, saving hours of computation time!
 
 ## 📊 How Good Is It?
 
