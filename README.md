@@ -107,8 +107,8 @@ params = {
     'hidden_sizes': [1, 2, 3],
     'neurons_per_layer': [10, 20, 30],
     # Early stopping parameters
-    'early_stopping_threshold': 20000,  # Skip combinations with MAE > 20000
-    'early_stopping_folds': 2           # After testing 2 folds
+    'early_stopping_threshold': 80000,  # Skip combinations with MAE > 20000
+    'early_stopping_folds': 5           # After testing 2 folds
 }
 
 # Run grid search with early stopping
