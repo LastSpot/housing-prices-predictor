@@ -1,6 +1,6 @@
 # 🏠 Housing Price Predictor
 
-Ever wondered how much your dream house should cost? Let's predict it! This project uses a fancy neural network to guess house prices (and it's pretty good at it too! 😎).
+Ever wondered how much your dream house should cost? Let's predict it! This project uses a fancy neural network I built to guess house prices (and it's pretty good at it too! 😎).
 
 ## ✨ What Makes This Cool?
 
@@ -11,32 +11,42 @@ Ever wondered how much your dream house should cost? Let's predict it! This proj
 - Makes all numbers play nice together (normalization)
 
 ### 🧠 Brainy Neural Network
-- Built our own brain (MLP) from scratch!
+- Built my own brain (MLP) from scratch!
 - Uses fancy math (Xavier/Glorot) to start smart
 - Learns patterns with sigmoid magic
 - Gets better with each try (gradient descent)
 - Stays fit with regularization (no overeating!)
+- Auto-loads best parameters on startup
+- Saves & loads your training results 💾
 
 ### 🎯 Training Like a Pro
 - Tries different settings to be the best (grid search)
 - Cross-checks itself (k-fold validation)
 - Stops when it's good enough (early stopping)
 - Keeps itself in check (L2 regularization)
+- Remembers what worked best (parameter persistence)
 
-### 🎮 The Knobs We Turn
+### 🎮 The Knobs I Turn
 - Learning speed (alpha)
 - Self-control (lambda)
 - When to stop (epsilon)
 - Network size (layers and neurons)
 
+### 🔍 Model Transparency
+- Detailed model information with `get_info()`
+- Parameter summaries with `summarize_parameters()`
+- Easy model creation from saved parameters
+- Parameter file management and inspection
+
 ## 📁 What's in the Box?
 
 ```
 housing-prices-predictor/
-├── model.py                 # Our brain in code
+├── model.py                 # My brain in code
 ├── housing-classification.ipynb  # The training ground
 ├── requirements.txt         # The shopping list
 ├── .gitignore              # The "don't look here" list
+├── best_params.pkl         # My saved model parameters
 └── home-data-for-ml-course/     # The data vault
     ├── train.csv           # Training data
     ├── test.csv            # Test data
@@ -64,12 +74,32 @@ pip install -r requirements.txt
 2. Run all the cells (like pressing play on a movie)
 3. Get your predictions in `submission.csv`
 
+## 💾 Parameter Management
+
+No need to retrain every time! My model now supports:
+
+```python
+# Create a new model (automatically loads parameters if they exist)
+model = MLPNeuralNetwork(input_size=288, output_size=1)
+
+# Create a model directly from saved parameters
+model = MLPNeuralNetwork.create_from_parameters("best_params.pkl")
+
+# Check available parameter files
+MLPNeuralNetwork.check_saved_parameters()
+
+# See what's inside your model
+model.get_info()
+model.summarize_parameters()
+```
+
 ## 📊 How Good Is It?
 
-We measure success with Mean Absolute Error (MAE) and:
+I measure success with Mean Absolute Error (MAE) and:
 - Test it 10 different ways (cross-validation)
 - Try lots of different settings (grid search)
 - Keep it from getting too excited (regularization)
+- Save the best parameters for future use
 
 ## 🛠️ What You Need
 
