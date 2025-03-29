@@ -1,6 +1,6 @@
 # 🏠 Housing Price Predictor
 
-Ever wondered how much your dream house should cost? Let's predict it! This project uses a custom neural network to predict house prices with high accuracy.
+Ever wondered how much your dream house should cost? Let's predict it! This project uses a fancy neural network I built to guess house prices (and it's pretty good at it too! 😎).
 
 ## ✨ What Makes This Cool?
 
@@ -9,24 +9,15 @@ Ever wondered how much your dream house should cost? Let's predict it! This proj
 - Fills in missing values using smart neighbors (KNN)
 - Turns categories into numbers (one-hot encoding)
 - Makes all numbers play nice together (normalization)
-- Consistent encoding across training and test data
 
 ### 🧠 Brainy Neural Network
-- Built a Multi-Layer Perceptron (MLP) from scratch!
-- Uses He initialization for better performance
-- Learns patterns with sigmoid activation
+- Built my own brain (MLP) from scratch!
+- Uses fancy math (Xavier/Glorot) to start smart
+- Learns patterns with sigmoid magic
 - Gets better with each try (gradient descent)
 - Stays fit with regularization (no overeating!)
 - Auto-loads best parameters on startup
 - Saves & loads your training results 💾
-- Robust error handling to prevent NaN issues
-
-### 📈 Smart Loss Functions
-- **RMSE**: Standard Root Mean Squared Error for general prediction
-- **Weighted RMSE**: Gives more importance to expensive houses (reduces % error)
-- **Huber Loss**: Combines MSE and MAE to be less sensitive to outliers
-- **Log-Cosh Loss**: Smooth approximation of Huber loss with better gradients
-- **MAE**: Mean Absolute Error option for straightforward average error
 
 ### 🎯 Training Like a Pro
 - Tries different settings to be the best (grid search)
@@ -35,14 +26,12 @@ Ever wondered how much your dream house should cost? Let's predict it! This proj
 - Keeps itself in check (L2 regularization)
 - Remembers what worked best (parameter persistence)
 - Smart enough to skip bad parameter combinations (saves hours!)
-- Evaluates using customizable loss functions for better accuracy
 
 ### 🎮 The Knobs I Turn
 - Learning speed (alpha)
 - Self-control (lambda)
 - When to stop (epsilon)
 - Network size (layers and neurons)
-- Loss function type (RMSE, weighted RMSE, Huber, Log-Cosh, MAE)
 
 ### 🔍 Model Transparency
 - Detailed model information with `get_info()`
@@ -54,16 +43,15 @@ Ever wondered how much your dream house should cost? Let's predict it! This proj
 
 ```
 housing-prices-predictor/
-├── model.py                     # The neural network implementation
-├── housing-prediction-script.py # The main processing script
-├── housing-classification.ipynb # Interactive Jupyter notebook
-├── requirements.txt             # Dependencies
-├── .gitignore                   # Ignored files
-├── best_params.pkl              # Saved model parameters
-└── home-data-for-ml-course/     # Data directory
-    ├── train.csv                # Training data
-    ├── test.csv                 # Test data
-    └── data_description.txt     # Feature descriptions
+├── model.py                 # My brain in code
+├── housing-classification.ipynb  # The training ground
+├── requirements.txt         # The shopping list
+├── .gitignore              # The "don't look here" list
+├── best_params.pkl         # My saved model parameters
+└── home-data-for-ml-course/     # The data vault
+    ├── train.csv           # Training data
+    ├── test.csv            # Test data
+    └── data_description.txt # The manual
 ```
 
 ## 🚀 Getting Started
@@ -83,17 +71,9 @@ pip install -r requirements.txt
 
 ## 🎮 How to Play
 
-1. Fire up the script:
-```bash
-python housing-prediction-script.py
-```
-
-Or use the notebook:
-```bash
-jupyter notebook housing-classification.ipynb
-```
-
-2. Get your predictions in `submission.csv`
+1. Fire up `housing-classification.ipynb` in Jupyter Notebook
+2. Run all the cells (like pressing play on a movie)
+3. Get your predictions in `submission.csv`
 
 ## 💾 Parameter Management
 
@@ -121,68 +101,37 @@ Speed up your grid search with early stopping criteria:
 ```python
 # Define your parameter grid
 params = {
-    'alphas': [0.6, 0.7, 0.8, 0.9],
-    'lambdas': [0, 0.1, 0.2, 0.3],
-    'epsilons': [math.pow(math.e, -7), math.pow(math.e, -6), math.pow(math.e, -5)],
-    'hidden_sizes': [5, 10],
-    'neurons_per_layer': [10, 20],
+    'alphas': [0.001, 0.01, 0.1],
+    'lambdas': [0, 0.01, 0.1],
+    'epsilons': [1e-8, 1e-6],
+    'hidden_sizes': [1, 2, 3],
+    'neurons_per_layer': [10, 20, 30],
     # Early stopping parameters
-    'early_stopping_threshold': 150000,  # Skip combinations with RMSE > 150000
-    'early_stopping_folds': 4           # After testing 4 folds
+    'early_stopping_threshold': 80000,  # Skip combinations with MAE > 20000
+    'early_stopping_folds': 5           # After testing 2 folds
 }
 
 # Run grid search with early stopping
-model.grid_search(X_train, y_train, params, k_fold_index)
+model.grid_search(X_train, y_train, params, kf)
 ```
 
 This lets you skip poor parameter combinations after just a few folds, saving hours of computation time!
 
-## 🎯 Custom Loss Functions
-
-The model now supports multiple loss functions to fine-tune prediction accuracy:
-
-```python
-# Grid search with weighted RMSE (weights errors on expensive houses more heavily)
-model.grid_search(X_train, y_train, params, k_fold_index, loss_type='weighted_rmse')
-
-# Train with Huber loss (combines MSE and MAE, less sensitive to outliers)
-model.fit(X_train, y_train, loss_type='huber')
-
-# Test with log-cosh loss (smooth approximation of Huber)
-score = model.test(X_test, y_test, loss_type='log_cosh')
-```
-
-Different loss functions are optimal for different situations:
-
-- **weighted_rmse**: Best when accuracy on expensive houses matters more
-- **huber**: Best when your data has outliers (unusually expensive houses)
-- **log_cosh**: Smoothest training with differentiable gradients
-- **rmse**: Standard metric used in most competitions
-- **mae**: When you want to minimize average absolute dollar error
-
-Parameters are saved with the loss function name included (e.g., `best_params_huber.pkl`).
-
 ## 📊 How Good Is It?
 
-I measure success with multiple loss metrics, which:
-- Penalize errors differently based on the problem needs
-- Give a better sense of prediction quality for housing prices
-- Are in the same unit as the target variable (dollars)
-
-The model:
-- Tests across multiple data splits (k-fold cross-validation)
-- Tries numerous parameter combinations (grid search)
-- Prevents overfitting through regularization
-- Saves the best parameters for future use
-- Uses specific loss functions optimized for real estate pricing
+I measure success with Mean Absolute Error (MAE) and:
+- Test it 10 different ways (cross-validation)
+- Try lots of different settings (grid search)
+- Keep it from getting too excited (regularization)
+- Save the best parameters for future use
 
 ## 🛠️ What You Need
 
 - Python 3.11+ (the newer, the better)
 - NumPy (for number crunching)
 - Pandas (for data wrangling)
-- scikit-learn (for data processing utilities)
-- Jupyter Notebook (optional, for interactive exploration)
+- scikit-learn (for the fancy stuff)
+- Jupyter Notebook (for the fun part)
 
 ## 📝 License
 
